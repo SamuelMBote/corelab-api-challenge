@@ -1,23 +1,19 @@
-/*
-|--------------------------------------------------------------------------
-| Routes
-|--------------------------------------------------------------------------
-|
-| This file is dedicated for defining HTTP routes. A single file is enough
-| for majority of projects, however you can define routes in different
-| files and just make sure to import them inside this file. For example
-|
-| Define routes in following two files
-| ├── start/routes/cart.ts
-| ├── start/routes/customer.ts
-|
-| and then import them inside `start/routes.ts` as follows
-|
-| import './routes/cart'
-| import './routes/customer'
-|
-*/
-
 import Route from '@ioc:Adonis/Core/Route'
+const sqllite3 = require('sqlite3')
+import { exec } from 'child_process'
 
-Route.get('/vehicles', 'VehiclesController.index');
+new sqllite3.Database(
+  './database/db.todo',
+  sqllite3.OPEN_READWRITE | sqllite3.OPEN_CREATE,
+  (err) => {
+    if (err) {
+      console.error(err.message)
+    } else {
+      exec('node ace migration:refresh')
+      console.log('Connected to database.')
+    }
+  }
+)
+Route.group(() => {
+  Route.resource('/notas', 'NotasController').apiOnly()
+}).prefix('/api')
